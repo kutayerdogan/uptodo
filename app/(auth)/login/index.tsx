@@ -7,10 +7,36 @@ import GoogleIcon from '@/assets/icons/google.svg';
 import AppleIcon from '@/assets/icons/apple.svg';
 import { Fonts } from '@/constants/Fonts';
 import { useState } from 'react';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  console.log('Login Page');
+
+  const handleLogin = async () => {
+    console.log('Login Function');
+    const auth = getAuth();
+    try {
+      console.log('Logging in...');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log(userCredential.user);
+      setErrorMessage('');
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      console.log('Login Error: ', error.code, error.message);  
+      if (error.code === 'auth/user-not-found') {
+        setErrorMessage('User not found');
+      } else if (error.code === 'auth/wrong-password') {
+        setErrorMessage('Invalid password');
+      } else if (error.code === 'auth/invalid-email') {
+        setErrorMessage('Invalid email');
+      } else {
+        setErrorMessage(error.message);
+      }
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -24,10 +50,10 @@ export default function Login() {
       <View style={styles.content}>
         <View style={styles.form}>
           <FormInput
-            label="Username"
-            placeholder="Enter your username"
-            value={username}
-            onChangeText={setUsername}
+            label="Email"
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
           />
           <FormInput
             label="Password"
@@ -36,12 +62,15 @@ export default function Login() {
             onChangeText={setPassword}
             secureTextEntry
           />
+          {errorMessage ? (
+            <Text style={styles.text}>{errorMessage}</Text>
+          ) : null}
           <FormButton 
             text="Login"
             onPress={() => {
-              router.replace('/(tabs)');
+                handleLogin();
             }}
-            disabled={!username || !password}
+            disabled={!email || !password}
           />
         </View>
 
