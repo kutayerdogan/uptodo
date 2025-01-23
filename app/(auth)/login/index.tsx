@@ -23,7 +23,7 @@ export default function Login() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log(userCredential.user);
       setErrorMessage('');
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/index');
     } catch (error: any) {
       console.log('Login Error: ', error.code, error.message);  
       if (error.code === 'auth/user-not-found') {
